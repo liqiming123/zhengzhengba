@@ -143,7 +143,7 @@ export default async function ScriptsPage() {
               <h1>脚本资产库</h1>
               <p>集中管理每日文案、内容类别和已下发视频数量，方便编导从脚本到剪辑流转。</p>
             </div>
-            <Modal trigger="新增脚本" title="新增脚本" subtitle="填写标题、类别和正文后进入脚本库。">
+            <Modal closeOnSubmit trigger="新增脚本" title="新增脚本" subtitle="填写标题、类别和正文后进入脚本库。">
               <form action={createScriptAction} className="glass-form script-form">
                 {user.role === Role.ADMIN ? (
                   <label className="field">

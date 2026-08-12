@@ -227,7 +227,7 @@ function AdminWorkbench({
                 <strong>{publishReady}</strong>
               </a>
               <a href="/inventory?status=STOCK">
-                <span>屯片池</span>
+                <span>囤片池</span>
                 <strong>{stock}</strong>
               </a>
             </div>
@@ -671,7 +671,7 @@ export default async function DashboardPage() {
               label: "发布库存",
               value: readyVideos.length + stockVideos.length,
               description: `可发布 ${readyVideos.length}`,
-              detail: `屯片池 ${stockVideos.length}`,
+              detail: `囤片池 ${stockVideos.length}`,
             },
           ]}
           targetItems={[

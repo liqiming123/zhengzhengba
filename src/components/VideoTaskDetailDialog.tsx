@@ -1,8 +1,8 @@
 "use client";
 
-import { type KeyboardEvent, type MouseEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, type MouseEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { ReviewDecision, VideoStatus } from "@prisma/client";
-import { submitReviewAction } from "@/app/actions";
+import { submitReviewAction, updateEditorTaskAction } from "@/app/actions";
 import { StatusPill } from "@/components/StatusPill";
 
 type VideoTaskDetailDialogProps = {
@@ -31,6 +31,7 @@ type VideoTaskDetailDialogProps = {
   typeLabel: string;
   statusLabel: string;
   allowReviewAction?: boolean;
+  allowEditorAction?: boolean;
   cardClassName?: string;
   triggerAsButton?: boolean;
   children: ReactNode;
@@ -41,6 +42,7 @@ export function VideoTaskDetailDialog({
   typeLabel,
   statusLabel,
   allowReviewAction = true,
+  allowEditorAction = false,
   cardClassName = "video-task-card",
   triggerAsButton = false,
   children,
@@ -53,6 +55,8 @@ export function VideoTaskDetailDialog({
   const [isScriptDialogOpen, setIsScriptDialogOpen] = useState(false);
   const [isScriptDialogVisible, setIsScriptDialogVisible] = useState(false);
   const canOpenReview = allowReviewAction && task.status === VideoStatus.PENDING_REVIEW;
+  const canUpdateEditorTask = allowEditorAction && [VideoStatus.PENDING_EDIT, VideoStatus.IN_PROGRESS, VideoStatus.NEEDS_REVISION].includes(task.status);
+  const editorFormId = useId();
   const publishedHref = task.status === VideoStatus.PUBLISHED ? "/schedule#published" : null;
   const interactiveSelector = "a, button, input, textarea, select, label, dialog, [data-detail-ignore]";
 
@@ -322,9 +326,26 @@ export function VideoTaskDetailDialog({
                   <a href={task.videoUrl} rel="noreferrer" target="_blank" onClick={keepLinkClick}>打开视频链接</a>
                 ) : null}
               </div>
-              <p>{task.videoUrl || "剪辑暂未提交视频链接。"}</p>
+              {canUpdateEditorTask ? (
+                <form action={updateEditorTaskAction} className="video-detail-video-url-form" id={editorFormId} onSubmit={closeDialog}>
+                  <input type="hidden" name="videoTaskId" value={task.id} />
+                  <input type="hidden" name="status" value={VideoStatus.PENDING_REVIEW} />
+                  <input aria-label="成片链接" name="videoUrl" type="url" defaultValue={task.videoUrl || ""} placeholder="请输入剪辑成片链接" required />
+                </form>
+              ) : (
+                <p>{task.videoUrl || "剪辑暂未提交视频链接。"}</p>
+              )}
             </section>
           </div>
+
+          <footer className="video-detail-footer">
+            <button className="video-detail-cancel" type="button" onClick={closeDialog}>取消</button>
+            {canUpdateEditorTask ? (
+              <button className="primary-action video-detail-confirm" form={editorFormId} type="submit">确认并提交审核</button>
+            ) : (
+              <button className="primary-action video-detail-confirm" type="button" onClick={closeDialog}>确认</button>
+            )}
+          </footer>
 
           {isScriptDialogOpen ? (
             <div

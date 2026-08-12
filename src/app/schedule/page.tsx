@@ -116,7 +116,7 @@ export default async function SchedulePage() {
                 <h2>未来一周发布日历</h2>
                 <p>{plannedMessage} · 本周 {weekScheduleCount} 条</p>
               </div>
-              <Modal trigger="补充排期" title="补充排期" subtitle="从屯片池或已通过内容中选择视频加入排期。">
+              <Modal trigger="补充排期" title="补充排期" subtitle="从囤片池或已通过内容中选择视频加入排期。">
                 {candidates.length ? (
                   <form action={scheduleVideoAction} className="glass-form">
                     <label className="field">

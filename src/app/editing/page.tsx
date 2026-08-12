@@ -201,6 +201,7 @@ export default async function EditingPage({ searchParams }: EditingPageProps) {
 
                 return (
                   <VideoTaskDetailDialog
+                    allowEditorAction={canUpdate}
                     allowReviewAction={false}
                     cardClassName="video-task-card editor-task-card"
                     key={task.id}

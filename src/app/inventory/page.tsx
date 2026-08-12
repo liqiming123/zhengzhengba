@@ -68,7 +68,7 @@ function InventoryVideoCard({ video, variant }: { video: InventoryVideo; variant
         <StatusPill status={video.status} />
       </div>
       <h3>{video.script.title}</h3>
-      <p>{variant === "stock" ? "审核通过后暂存屯片池，补充发布日期后即可进入排期。" : "已进入发布准备区，可继续确认具体发布节奏。"}</p>
+      <p>{variant === "stock" ? "审核通过后暂存囤片池，补充发布日期后即可进入排期。" : "已进入发布准备区，可继续确认具体发布节奏。"}</p>
       <div className="inventory-card-meta">
         <div>
           <span>编导</span>
@@ -141,7 +141,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
             href="/inventory?status=STOCK#stock"
             prefetch={false}
           >
-            <span>屯片池</span>
+            <span>囤片池</span>
             <strong>{stock.length}</strong>
             <p>暂无计划发布日期</p>
           </Link>
@@ -187,7 +187,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
               <div className="inventory-panel-head">
                 <div>
                   <span>Stock Pool</span>
-                  <h2>屯片池</h2>
+                  <h2>囤片池</h2>
                   <p>审核通过但还没有计划发布日期的内容，先沉淀在这里等待补排期。</p>
                 </div>
                 <b>{stock.length} 条</b>

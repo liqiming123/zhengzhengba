@@ -1,4 +1,4 @@
-import { NotificationType, Role, VideoStatus } from "@prisma/client";
+import { NotificationType, Role, UserStatus, VideoStatus } from "@prisma/client";
 import { endOfShanghaiDay, isAfterShanghaiReminderTime, startOfShanghaiDay } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
 
@@ -22,7 +22,7 @@ export async function ensureDeadlineReminders() {
   if (globalForReminders.deadlineReminderRunKey === runKey) return;
 
   const users = await prisma.user.findMany({
-    where: { role: { in: [Role.DIRECTOR, Role.EDITOR] }, status: "ACTIVE" },
+    where: { role: { in: [Role.DIRECTOR, Role.EDITOR] }, status: UserStatus.ACTIVE },
     include: {
       dailyTargets: {
         orderBy: [{ effectiveFrom: "desc" }, { createdAt: "desc" }],

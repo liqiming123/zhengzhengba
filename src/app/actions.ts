@@ -6,6 +6,7 @@ import {
   ReviewDecision,
   Role,
   ScheduleStatus,
+  type Prisma,
   ScriptCategory,
   UserStatus,
   VideoStatus,
@@ -65,6 +66,34 @@ const schedulableStatuses: VideoStatus[] = [
   VideoStatus.STOCK,
   VideoStatus.SCHEDULED,
 ];
+
+async function upsertScheduledPublish(
+  tx: Prisma.TransactionClient,
+  videoTaskId: string,
+  plannedPublishDate: Date,
+  publishTime: string,
+) {
+  const existingSchedule = await tx.publishSchedule.findFirst({
+    where: { videoTaskId, status: ScheduleStatus.SCHEDULED },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (existingSchedule) {
+    return tx.publishSchedule.update({
+      where: { id: existingSchedule.id },
+      data: { plannedPublishDate, publishTime, status: ScheduleStatus.SCHEDULED },
+    });
+  }
+
+  return tx.publishSchedule.create({
+    data: {
+      videoTaskId,
+      plannedPublishDate,
+      publishTime,
+      status: ScheduleStatus.SCHEDULED,
+    },
+  });
+}
 
 async function assertVideoAccess(videoTaskId: string, allowedRoles: Role[]) {
   const user = await requireRole(allowedRoles);
@@ -286,23 +315,17 @@ export async function submitReviewAction(formData: FormData) {
     }
 
     if (video.plannedPublishDate) {
-      await tx.publishSchedule.create({
-        data: {
-          videoTaskId,
-          plannedPublishDate: video.plannedPublishDate,
-          publishTime: video.publishTime || "19:30",
-          status: ScheduleStatus.SCHEDULED,
-        },
+      await upsertScheduledPublish(tx, videoTaskId, video.plannedPublishDate, video.publishTime || "19:30");
+      await tx.videoTask.update({
+        where: { id: videoTaskId },
+        data: { status: VideoStatus.SCHEDULED, videoUrl, approvedAt: new Date() },
       });
+      return;
     }
 
     await tx.videoTask.update({
       where: { id: videoTaskId },
-      data: {
-        status: video.plannedPublishDate ? VideoStatus.SCHEDULED : VideoStatus.STOCK,
-        videoUrl,
-        approvedAt: new Date(),
-      },
+      data: { status: VideoStatus.STOCK, videoUrl, approvedAt: new Date() },
     });
   });
 
@@ -323,19 +346,13 @@ export async function scheduleVideoAction(formData: FormData) {
     throw new Error("Only approved, ready or stock videos can be scheduled.");
   }
 
-  await prisma.$transaction([
-    prisma.publishSchedule.create({
-      data: {
-        videoTaskId,
-        plannedPublishDate,
-        publishTime,
-      },
-    }),
-    prisma.videoTask.update({
+  await prisma.$transaction(async (tx) => {
+    await upsertScheduledPublish(tx, videoTaskId, plannedPublishDate, publishTime);
+    await tx.videoTask.update({
       where: { id: videoTaskId },
       data: { plannedPublishDate, publishTime, status: VideoStatus.SCHEDULED },
-    }),
-  ]);
+    });
+  });
 
   revalidatePath("/schedule");
   revalidatePath("/inventory");

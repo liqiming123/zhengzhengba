@@ -10,6 +10,7 @@ export function Modal({
   dialogClassName = "",
   tone = "primary",
   triggerClassName = "",
+  closeOnSubmit = false,
 }: {
   trigger: string;
   title: string;
@@ -18,6 +19,7 @@ export function Modal({
   dialogClassName?: string;
   tone?: "primary" | "ghost";
   triggerClassName?: string;
+  closeOnSubmit?: boolean;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -32,6 +34,12 @@ export function Modal({
         onClick={(event) => {
           if (event.target === event.currentTarget) {
             event.currentTarget.close();
+          }
+        }}
+        onSubmit={(event) => {
+          const form = event.target as HTMLFormElement;
+          if (closeOnSubmit && form.getAttribute("method") !== "dialog") {
+            dialogRef.current?.close();
           }
         }}
       >

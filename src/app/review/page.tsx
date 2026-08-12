@@ -207,22 +207,13 @@ export default async function ReviewPage({ searchParams }: ReviewPageProps) {
                               <input name="videoUrl" required defaultValue={video.videoUrl || ""} placeholder="https://..." />
                             </label>
                             <label className="field">
-                              <span>审核结论</span>
-                              <select name="decision" required defaultValue="">
-                                <option value="" disabled>请选择审核结论</option>
-                                <option value={ReviewDecision.NEEDS_REVISION}>需要修改</option>
-                                <option value={ReviewDecision.APPROVED}>审核通过</option>
-                              </select>
-                            </label>
-                            <label className="field">
                               <span>修改建议 / 通过备注</span>
                               <textarea name="comment" placeholder="写清楚要改的位置、文案、镜头、节奏或封面建议。" />
                             </label>
-                            <label className="field">
-                              <span>审核截图</span>
-                              <input name="attachments" type="file" accept="image/*" multiple />
-                            </label>
-                            <button className="primary-action" type="submit">提交审核结果</button>
+                            <div className="review-decision-actions">
+                              <button className="review-decision-button review-reject-button" name="decision" type="submit" value={ReviewDecision.NEEDS_REVISION}>驳回修改</button>
+                              <button className="primary-action review-decision-button" name="decision" type="submit" value={ReviewDecision.APPROVED}>审核通过</button>
+                            </div>
                           </form>
                         </article>
                       ) : (

@@ -177,7 +177,7 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
             <p>从脚本下发到剪辑交付、审核确认和发布排期，一屏看清每条视频现在卡在哪一步。</p>
           </div>
           <div className="video-header-actions">
-            <Modal trigger="下达任务" title="从脚本库下达任务" subtitle="选择已入库脚本，填写素材和交付日期。">
+            <Modal closeOnSubmit trigger="下达任务" title="从脚本库下达任务" subtitle="选择已入库脚本，填写素材和交付日期。">
               <form action={createVideoTaskAction} className="glass-form">
                 <fieldset className="script-picker">
                   <legend>选择脚本</legend>
@@ -230,7 +230,7 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
               </form>
             </Modal>
 
-            <Modal trigger="创作并下发" title="创作新脚本并下发" subtitle="当脚本库没有对应脚本时，直接创建脚本并生成视频任务。" tone="ghost">
+            <Modal closeOnSubmit trigger="创作并下发" title="创作新脚本并下发" subtitle="当脚本库没有对应脚本时，直接创建脚本并生成视频任务。" tone="ghost">
               <form action={createScriptAndVideoTaskAction} className="glass-form">
                 {user.role === Role.ADMIN ? (
                   <label className="field">
