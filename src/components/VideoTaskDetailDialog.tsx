@@ -55,7 +55,7 @@ export function VideoTaskDetailDialog({
   const [isScriptDialogOpen, setIsScriptDialogOpen] = useState(false);
   const [isScriptDialogVisible, setIsScriptDialogVisible] = useState(false);
   const canOpenReview = allowReviewAction && task.status === VideoStatus.PENDING_REVIEW;
-  const canUpdateEditorTask = allowEditorAction && [VideoStatus.PENDING_EDIT, VideoStatus.IN_PROGRESS, VideoStatus.NEEDS_REVISION].includes(task.status);
+  const canUpdateEditorTask = allowEditorAction && [VideoStatus.PENDING_EDIT, VideoStatus.IN_PROGRESS, VideoStatus.NEEDS_REVISION, VideoStatus.PENDING_REVIEW].includes(task.status);
   const editorFormId = useId();
   const publishedHref = task.status === VideoStatus.PUBLISHED ? "/schedule#published" : null;
   const interactiveSelector = "a, button, input, textarea, select, label, dialog, [data-detail-ignore]";
