@@ -61,6 +61,7 @@ export function VideoTaskDetailDialog({
   const [isScriptDialogOpen, setIsScriptDialogOpen] = useState(false);
   const [isScriptDialogVisible, setIsScriptDialogVisible] = useState(false);
   const [isTaskEditOpen, setIsTaskEditOpen] = useState(false);
+  const [isVideoUrlEditing, setIsVideoUrlEditing] = useState(false);
   const canOpenReview = allowReviewAction && task.status === VideoStatus.PENDING_REVIEW;
   const canUpdateEditorTask = allowEditorAction && ([VideoStatus.PENDING_EDIT, VideoStatus.IN_PROGRESS, VideoStatus.NEEDS_REVISION] as VideoStatus[]).includes(task.status);
   const canEditVideoUrl = allowVideoUrlEdit || allowEditorAction;
@@ -331,9 +332,12 @@ export function VideoTaskDetailDialog({
             <section className="video-detail-section">
               <div className="video-detail-section-head">
                 <h3>成片链接</h3>
-                {task.videoUrl ? (
-                  <a href={task.videoUrl} rel="noreferrer" target="_blank" onClick={keepLinkClick}>打开视频链接</a>
-                ) : null}
+                <div className="video-detail-section-actions">
+                  {task.videoUrl ? (
+                    <a href={task.videoUrl} rel="noreferrer" target="_blank" onClick={keepLinkClick}>打开视频链接</a>
+                  ) : null}
+                  {canEditVideoUrl ? <button className="video-detail-soft-action" type="button" onClick={() => setIsVideoUrlEditing((editing) => !editing)}>{isVideoUrlEditing ? "取消修改" : "修改"}</button> : null}
+                </div>
               </div>
               {canUpdateEditorTask ? (
                 <form action={updateEditorTaskAction} className="video-detail-video-url-form" id={editorFormId} onSubmit={closeDialog}>
@@ -341,7 +345,7 @@ export function VideoTaskDetailDialog({
                   <input type="hidden" name="status" value={VideoStatus.PENDING_REVIEW} />
                   <input aria-label="成片链接" name="videoUrl" type="url" defaultValue={task.videoUrl || ""} placeholder="请输入剪辑成片链接" required />
                 </form>
-              ) : canEditVideoUrl ? (
+              ) : canEditVideoUrl && isVideoUrlEditing ? (
                 <form action={updateVideoUrlAction} className="video-detail-video-url-form" id={videoUrlFormId}>
                   <input type="hidden" name="videoTaskId" value={task.id} />
                   <input aria-label="成片链接" name="videoUrl" type="url" defaultValue={task.videoUrl || ""} placeholder="点击输入或修改成片链接" required />
@@ -380,7 +384,7 @@ export function VideoTaskDetailDialog({
             <button className="video-detail-cancel" type="button" onClick={closeDialog}>取消</button>
             {canUpdateEditorTask ? (
               <button className="primary-action video-detail-confirm" form={editorFormId} type="submit">确认并提交审核</button>
-            ) : canEditVideoUrl ? (
+            ) : canEditVideoUrl && isVideoUrlEditing ? (
               <button className="primary-action video-detail-confirm" form={videoUrlFormId} type="submit">确认</button>
             ) : (
               <button className="primary-action video-detail-confirm" type="button" onClick={closeDialog}>确认</button>

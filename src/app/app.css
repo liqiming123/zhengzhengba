@@ -6418,6 +6418,12 @@ a.video-signal-card[data-active="true"] {
   margin-bottom: 12px;
 }
 
+.video-detail-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .video-detail-section-head h3 {
   margin: 0;
   color: #20242a;
