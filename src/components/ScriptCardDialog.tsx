@@ -2,7 +2,7 @@
 
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { ScriptCategory } from "@prisma/client";
-import { updateScriptAction } from "@/app/actions";
+import { deleteScriptAction, updateScriptAction } from "@/app/actions";
 
 type ScriptCardDialogProps = {
   script: {
@@ -128,6 +128,16 @@ export function ScriptCardDialog({ script, categoryMeta, excerpt }: ScriptCardDi
               <textarea name="body" required defaultValue={script.body} />
             </label>
             <footer className="script-detail-actions">
+              <button
+                className="ghost-action danger-action"
+                formAction={deleteScriptAction}
+                type="submit"
+                onClick={(event) => {
+                  if (!window.confirm("删除脚本会同时撤销尚未完成的视频任务，确认删除吗？")) event.preventDefault();
+                }}
+              >
+                删除脚本
+              </button>
               <button className="ghost-action" type="button" onClick={closeDialog}>取消</button>
               <button className="primary-action" type="submit">保存修改</button>
             </footer>

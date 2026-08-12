@@ -6153,6 +6153,34 @@ a.video-signal-card[data-active="true"] {
   padding-inline: 18px;
 }
 
+.video-detail-delete,
+.danger-action {
+  border: 1px solid color-mix(in srgb, #d75d50 28%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, #d75d50 8%, #ffffff);
+  color: #c94f43;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  min-height: 44px;
+  padding: 0 16px;
+}
+
+.video-detail-footer form {
+  margin-right: auto;
+}
+
+.video-task-management {
+  border: 1px solid var(--video-detail-theme-line);
+  border-radius: 20px;
+  background: var(--video-detail-theme-soft);
+  padding: 18px;
+}
+
+.video-task-edit-form {
+  margin-top: 16px;
+}
+
 .video-detail-video-url-form {
   margin-top: 16px;
 }

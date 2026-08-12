@@ -151,6 +151,23 @@ export async function updateScriptAction(formData: FormData) {
   revalidatePath("/videos");
 }
 
+export async function deleteScriptAction(formData: FormData) {
+  const user = await requireRole([Role.ADMIN, Role.DIRECTOR]);
+  const scriptId = requiredString(formData, "scriptId");
+  const script = await prisma.script.findUnique({ where: { id: scriptId } });
+  if (!script) throw new Error("Script not found.");
+  if (user.role === Role.DIRECTOR && script.authorId !== user.id) {
+    throw new Error("You can only delete your own scripts.");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.videoTask.deleteMany({ where: { scriptId } });
+    await tx.script.delete({ where: { id: scriptId } });
+  });
+
+  revalidateShellPages();
+}
+
 export async function createVideoTaskAction(formData: FormData) {
   const user = await requireRole([Role.ADMIN, Role.DIRECTOR]);
   const scriptId = requiredString(formData, "scriptId");
@@ -258,6 +275,57 @@ export async function updateEditorTaskAction(formData: FormData) {
   revalidatePath("/review");
   revalidatePath("/videos");
   revalidatePath("/dashboard");
+}
+
+export async function updateVideoUrlAction(formData: FormData) {
+  const videoTaskId = requiredString(formData, "videoTaskId");
+  const videoUrl = requiredString(formData, "videoUrl");
+  await assertVideoAccess(videoTaskId, [Role.ADMIN, Role.DIRECTOR, Role.EDITOR]);
+
+  await prisma.videoTask.update({ where: { id: videoTaskId }, data: { videoUrl } });
+  revalidateShellPages();
+}
+
+export async function updateVideoTaskAction(formData: FormData) {
+  const videoTaskId = requiredString(formData, "videoTaskId");
+  const { video } = await assertVideoAccess(videoTaskId, [Role.ADMIN, Role.DIRECTOR]);
+  if (video.status === VideoStatus.PUBLISHED) {
+    throw new Error("Published tasks cannot be reissued.");
+  }
+
+  const plannedPublishDateValue = optionalString(formData, "plannedPublishDate");
+  await prisma.$transaction(async (tx) => {
+    await tx.publishSchedule.deleteMany({ where: { videoTaskId } });
+    await tx.reviewRound.deleteMany({ where: { videoTaskId } });
+    await tx.videoTask.update({
+      where: { id: videoTaskId },
+      data: {
+        materialUrl: requiredString(formData, "materialUrl"),
+        plannedDeliveryAt: parseShanghaiDate(requiredString(formData, "plannedDeliveryAt")),
+        plannedPublishDate: plannedPublishDateValue ? parseShanghaiDate(plannedPublishDateValue) : null,
+        publishTime: optionalString(formData, "publishTime"),
+        notes: optionalString(formData, "notes"),
+        status: VideoStatus.PENDING_EDIT,
+        videoUrl: null,
+        durationSeconds: null,
+        deliveredAt: null,
+        approvedAt: null,
+      },
+    });
+  });
+
+  revalidateShellPages();
+}
+
+export async function deleteVideoTaskAction(formData: FormData) {
+  const videoTaskId = requiredString(formData, "videoTaskId");
+  const { video } = await assertVideoAccess(videoTaskId, [Role.ADMIN, Role.DIRECTOR]);
+  if (video.status === VideoStatus.PUBLISHED) {
+    throw new Error("Published tasks cannot be deleted.");
+  }
+
+  await prisma.videoTask.delete({ where: { id: videoTaskId } });
+  revalidateShellPages();
 }
 
 export async function submitReviewAction(formData: FormData) {

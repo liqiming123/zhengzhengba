@@ -368,6 +368,8 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
 
                   return (
                     <VideoTaskDetailDialog
+                      allowTaskManagement
+                      allowVideoUrlEdit
                       cardClassName="video-task-row"
                       key={video.id}
                       statusLabel={videoStatusLabel[video.status]}
@@ -387,7 +389,9 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
                         duration,
                         createdAt: formatDate(video.createdAt),
                         plannedDeliveryAt: formatDate(video.plannedDeliveryAt),
+                        plannedDeliveryDateInput: video.plannedDeliveryAt.toISOString().slice(0, 10),
                         plannedPublishDate: formatDate(video.plannedPublishDate),
+                        plannedPublishDateInput: video.plannedPublishDate?.toISOString().slice(0, 10) || "",
                         publishTime: video.publishTime || "",
                         deliveredAt: formatDate(video.deliveredAt),
                         approvedAt: formatDate(video.approvedAt),
