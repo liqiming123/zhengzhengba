@@ -93,16 +93,18 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
   const videoWhere = user.role === Role.ADMIN ? {} : { directorId: user.id };
   const scriptWhere = user.role === Role.ADMIN ? {} : { authorId: user.id };
 
-  const [videos, scripts, directors] = await Promise.all([
+  const [videos, allScripts, directors, editors] = await Promise.all([
     prisma.videoTask.findMany({
       where: videoWhere,
       orderBy: { createdAt: "desc" },
       take: 80,
       include: { script: true, director: true, editor: true },
     }),
-    prisma.script.findMany({ where: scriptWhere, orderBy: { createdAt: "desc" }, take: 80, include: { author: true } }),
+    prisma.script.findMany({ where: scriptWhere, orderBy: { createdAt: "desc" }, take: 80, include: { author: true, videos: { select: { id: true }, take: 1 } } }),
     prisma.user.findMany({ where: { role: Role.DIRECTOR, status: "ACTIVE" }, orderBy: { createdAt: "asc" } }),
+    prisma.user.findMany({ where: { role: Role.EDITOR, status: "ACTIVE" }, orderBy: { createdAt: "asc" } }),
   ]);
+  const scripts = allScripts.filter((script) => script.videos.length === 0);
 
   const pendingEdit = videos.filter((video) => video.status === VideoStatus.PENDING_EDIT).length;
   const inProgress = videos.filter((video) => video.status === VideoStatus.IN_PROGRESS).length;
@@ -208,6 +210,15 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
                   <span>素材链接</span>
                   <input name="materialUrl" required placeholder="https://..." />
                 </label>
+                {user.role === Role.ADMIN ? (
+                  <label className="field">
+                    <span>剪辑人</span>
+                    <select name="editorId" defaultValue="">
+                      <option value="">后台自动分配</option>
+                      {editors.map((editor) => <option key={editor.id} value={editor.id}>{editor.name}</option>)}
+                    </select>
+                  </label>
+                ) : null}
                 <div className="split-two">
                   <label className="field">
                     <span>计划交付</span>
@@ -262,6 +273,15 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
                   <span>素材链接</span>
                   <input name="materialUrl" required />
                 </label>
+                {user.role === Role.ADMIN ? (
+                  <label className="field">
+                    <span>剪辑人</span>
+                    <select name="editorId" defaultValue="">
+                      <option value="">后台自动分配</option>
+                      {editors.map((editor) => <option key={editor.id} value={editor.id}>{editor.name}</option>)}
+                    </select>
+                  </label>
+                ) : null}
                 <div className="split-two">
                   <label className="field">
                     <span>计划交付</span>

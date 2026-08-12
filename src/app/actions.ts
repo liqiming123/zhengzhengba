@@ -113,6 +113,17 @@ async function assertVideoAccess(videoTaskId: string, allowedRoles: Role[]) {
   return { user, video };
 }
 
+async function resolveTaskEditor(user: { role: Role }, formData: FormData) {
+  const selectedEditorId = canManageAll(user.role) ? optionalString(formData, "editorId") : null;
+  if (!selectedEditorId) return pickEditorWithLightestQueue();
+
+  const editor = await prisma.user.findFirst({
+    where: { id: selectedEditorId, role: Role.EDITOR, status: UserStatus.ACTIVE },
+  });
+  if (!editor) throw new Error("Selected editor is unavailable.");
+  return editor;
+}
+
 export async function createScriptAction(formData: FormData) {
   const user = await requireRole([Role.ADMIN, Role.DIRECTOR]);
   const title = requiredString(formData, "title");
@@ -184,7 +195,10 @@ export async function createVideoTaskAction(formData: FormData) {
     throw new Error("You can only create video tasks from your own scripts.");
   }
 
-  const editor = await pickEditorWithLightestQueue();
+  const existingTask = await prisma.videoTask.findFirst({ where: { scriptId }, select: { id: true } });
+  if (existingTask) throw new Error("This script has already been issued to an editor.");
+
+  const editor = await resolveTaskEditor(user, formData);
 
   await prisma.videoTask.create({
     data: {
@@ -216,7 +230,7 @@ export async function createScriptAndVideoTaskAction(formData: FormData) {
     data: { title, body, category, authorId },
   });
 
-  const editor = await pickEditorWithLightestQueue();
+  const editor = await resolveTaskEditor(user, formData);
   const plannedPublishDateValue = optionalString(formData, "plannedPublishDate");
 
   await prisma.videoTask.create({
