@@ -5836,7 +5836,7 @@ a.video-signal-card[data-active="true"] {
 .video-task-list-head,
 .video-task-row {
   display: grid;
-  grid-template-columns: 88px minmax(220px, 1.45fr) 90px 82px 72px 98px 96px 94px 82px;
+  grid-template-columns: 88px minmax(200px, 1.35fr) 90px 82px 72px 98px 96px 94px 82px 156px;
   align-items: center;
   gap: 10px;
 }
@@ -5900,6 +5900,35 @@ a.video-signal-card[data-active="true"] {
 .video-task-row-status .status-pill {
   min-height: 28px;
   white-space: nowrap;
+}
+
+.video-task-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.video-task-row-actions .modal-trigger,
+.video-task-row-delete {
+  min-height: 30px;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 0 10px;
+}
+
+.video-task-row-actions .modal-trigger {
+  border: 1px solid var(--theme-accent-line);
+  color: var(--theme-accent);
+  background: var(--theme-accent-soft);
+}
+
+.video-task-row-delete {
+  border: 1px solid rgba(201, 79, 67, 0.2);
+  color: #c94f43;
+  background: rgba(201, 79, 67, 0.08);
 }
 
 .video-task-row-result,
@@ -8075,7 +8104,7 @@ a.video-signal-card[data-active="true"] {
 
   .video-task-list-head,
   .video-task-row {
-    min-width: 1040px;
+    min-width: 1190px;
   }
 
   .module-stat-grid {

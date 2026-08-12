@@ -62,7 +62,8 @@ export function VideoTaskDetailDialog({
   const [isScriptDialogVisible, setIsScriptDialogVisible] = useState(false);
   const [isTaskEditOpen, setIsTaskEditOpen] = useState(false);
   const canOpenReview = allowReviewAction && task.status === VideoStatus.PENDING_REVIEW;
-  const canUpdateEditorTask = allowEditorAction && ([VideoStatus.PENDING_EDIT, VideoStatus.IN_PROGRESS, VideoStatus.NEEDS_REVISION, VideoStatus.PENDING_REVIEW] as VideoStatus[]).includes(task.status);
+  const canUpdateEditorTask = allowEditorAction && ([VideoStatus.PENDING_EDIT, VideoStatus.IN_PROGRESS, VideoStatus.NEEDS_REVISION] as VideoStatus[]).includes(task.status);
+  const canEditVideoUrl = allowVideoUrlEdit || allowEditorAction;
   const editorFormId = useId();
   const videoUrlFormId = useId();
   const publishedHref = task.status === VideoStatus.PUBLISHED ? "/schedule#published" : null;
@@ -340,7 +341,7 @@ export function VideoTaskDetailDialog({
                   <input type="hidden" name="status" value={VideoStatus.PENDING_REVIEW} />
                   <input aria-label="成片链接" name="videoUrl" type="url" defaultValue={task.videoUrl || ""} placeholder="请输入剪辑成片链接" required />
                 </form>
-              ) : allowVideoUrlEdit ? (
+              ) : canEditVideoUrl ? (
                 <form action={updateVideoUrlAction} className="video-detail-video-url-form" id={videoUrlFormId}>
                   <input type="hidden" name="videoTaskId" value={task.id} />
                   <input aria-label="成片链接" name="videoUrl" type="url" defaultValue={task.videoUrl || ""} placeholder="点击输入或修改成片链接" required />
@@ -379,7 +380,7 @@ export function VideoTaskDetailDialog({
             <button className="video-detail-cancel" type="button" onClick={closeDialog}>取消</button>
             {canUpdateEditorTask ? (
               <button className="primary-action video-detail-confirm" form={editorFormId} type="submit">确认并提交审核</button>
-            ) : allowVideoUrlEdit ? (
+            ) : canEditVideoUrl ? (
               <button className="primary-action video-detail-confirm" form={videoUrlFormId} type="submit">确认</button>
             ) : (
               <button className="primary-action video-detail-confirm" type="button" onClick={closeDialog}>确认</button>

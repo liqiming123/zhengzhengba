@@ -1,5 +1,5 @@
 import { Role, ScriptCategory, VideoStatus } from "@prisma/client";
-import { createScriptAndVideoTaskAction, createVideoTaskAction } from "@/app/actions";
+import { createScriptAndVideoTaskAction, createVideoTaskAction, deleteVideoTaskAction, updateVideoTaskAction } from "@/app/actions";
 import { AppShell } from "@/components/AppShell";
 import { Modal } from "@/components/Modal";
 import { StatusPill } from "@/components/StatusPill";
@@ -359,6 +359,7 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
                   <span>计划交付</span>
                   <span>审核结果</span>
                   <span>可发布</span>
+                  <span>操作</span>
                 </div>
 
                 {visibleVideos.map((video) => {
@@ -368,7 +369,6 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
 
                   return (
                     <VideoTaskDetailDialog
-                      allowTaskManagement
                       allowVideoUrlEdit
                       cardClassName="video-task-row"
                       key={video.id}
@@ -397,7 +397,6 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
                         approvedAt: formatDate(video.approvedAt),
                         publishedAt: formatDate(video.publishedAt),
                       }}
-                      triggerAsButton
                       typeLabel={videoTypeLabel[video.type]}
                     >
                       <span>{formatDate(video.createdAt)}</span>
@@ -409,6 +408,25 @@ export default async function VideosPage({ searchParams }: VideosPageProps) {
                       <span>{formatDate(video.plannedDeliveryAt)}</span>
                       <span className="video-task-row-result" data-result={reviewResult}>{reviewResult}</span>
                       <span className="video-task-row-publish" data-publish={publishReady}>{publishReady}</span>
+                      <div className="video-task-row-actions" data-detail-ignore>
+                        <Modal closeOnSubmit tone="ghost" trigger="修改任务" title="修改任务" subtitle="保存后任务将重新进入待剪辑，可再次下达。">
+                          <form action={updateVideoTaskAction} className="glass-form">
+                            <input name="videoTaskId" type="hidden" value={video.id} />
+                            <label className="field"><span>素材链接</span><input name="materialUrl" required defaultValue={video.materialUrl} /></label>
+                            <div className="split-two">
+                              <label className="field"><span>计划交付</span><input name="plannedDeliveryAt" required type="date" defaultValue={video.plannedDeliveryAt.toISOString().slice(0, 10)} /></label>
+                              <label className="field"><span>计划发布</span><input name="plannedPublishDate" type="date" defaultValue={video.plannedPublishDate?.toISOString().slice(0, 10) || ""} /></label>
+                            </div>
+                            <label className="field"><span>发布时间</span><input name="publishTime" type="time" defaultValue={video.publishTime || "19:30"} /></label>
+                            <label className="field"><span>备注</span><textarea name="notes" defaultValue={video.notes || ""} /></label>
+                            <button className="primary-action" type="submit">保存并重新下达</button>
+                          </form>
+                        </Modal>
+                        <form action={deleteVideoTaskAction}>
+                          <input name="videoTaskId" type="hidden" value={video.id} />
+                          <button className="video-task-row-delete" type="submit">删除任务</button>
+                        </form>
+                      </div>
                     </VideoTaskDetailDialog>
                   );
                 })}
